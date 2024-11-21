@@ -1,0 +1,24 @@
+.add-button {
+  margin-top: -15px;
+  margin-bottom: 20px;
+}
+
+.project-list {
+  margin-top: -5px;
+  list-style-type: decimal;
+  list-style-position: inside;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.project-list li {
+  border-radius: 10px;
+  padding: 5px;
+  margin: 4px;
+  border-color: rgb(91, 90, 165);
+  border-style: solid;
+}
+
+.input-project {
+  margin-bottom: 20px;
+}

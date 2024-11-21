@@ -1,0 +1,63 @@
+.wrapper {
+  margin-top: -60px;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.input-task {
+  margin: 10px;
+}
+
+.task-list {
+  list-style-type: decimal;
+  list-style-position: inside;
+}
+.task-list li {
+  border-radius: 10px;
+  padding: 5px;
+  margin: 4px;
+  border-color: rgb(91, 90, 165);
+  border-style: solid;
+}
+
+.task-column {
+  min-width: 200px;
+  text-align: center;
+  width: 30%;
+  border: 1px solid black;
+  background-color: red;
+  padding: 10px;
+  border-radius: 1px;
+}
+
+.column-queue {
+  background-color: lightblue;
+}
+
+.column-development {
+  background-color: lightgreen;
+}
+
+.column-done {
+  background-color: lightcoral;
+}
+
+.column-container {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+}
+
+.subtask-list {
+  margin-top: 10px;
+  padding-left: 20px;
+  list-style-type: circle;
+}
+
+.subtask-list li {
+  margin-bottom: 5px;
+}

@@ -1,24 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import ProjectBorder from './pages/ProjectBorder';
+import TaskList from './pages/TaskList';
+import Home from './pages/Home';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <DndProvider backend={HTML5Backend}>
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/projects' element={<ProjectBorder />} />
+        <Route path='/projects/:title' element={<TaskList />} />
+      </Routes>
+    </DndProvider>
   );
 }
 
