@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
-import '../scss/projects.scss';
 import {
   addTodoProject,
   deleteTodoProject,
 } from '../redux/slices/projectListSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+import {
+  IconButton,
+  Box,
+  TextField,
+  Button,
+  List,
+  ListItem,
+  Typography,
+  ListItemText,
+} from '@mui/material';
 
 const ProjectBorder = () => {
   const [projectTitle, setPtojectTitle] = useState('');
@@ -26,65 +38,105 @@ const ProjectBorder = () => {
   };
 
   return (
-    <div className='wrapper'>
-      <h1>Список проектов</h1>
-      <button
-        className='add-button'
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeigth: '100vh',
+        textAlign: 'center',
+        marginTop: '10px',
+      }}
+    >
+      <Button
         onClick={() => setAddProjectButton(!addProjectButton)}
+        variant='outlined'
+        endIcon={<NoteAddIcon />}
       >
         Добавить проект
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          fill='none'
-          viewBox='0 0 24 24'
-          stroke-width='1.5'
-          stroke='currentColor'
-          style={{
-            heigth: '16px',
-            width: '16px',
-            paddingLeft: '5px',
-            marginRight: '-5px',
-            marginBottom: '-3',
-          }}
-        >
-          <path
-            stroke-linecap='round'
-            stroke-linejoin='round'
-            d='M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
-          />
-        </svg>
-      </button>
-      <div>
+      </Button>
+
+      <Box sx={{ display: 'flex', justifyContent: 'colum', marginTop: '10px' }}>
         {addProjectButton && (
           <>
-            <input
-              className='input-project'
-              type='text'
+            <TextField
+              id='outlained-basic'
+              label='Введите имя проекта!'
+              variant='outlined'
               value={projectTitle}
               onChange={onChange}
-              placeholder='Введите имя проекта!'
             />
-            <button onClick={handlAddProject}> Создать проект</button>
+
+            <Button onClick={handlAddProject} variant='outlined'>
+              Создать проект
+            </Button>
           </>
         )}
-      </div>
-      <ol className='project-list'>
+      </Box>
+      {projects.length > 0 ? (
+        <Typography variant='h5'>Список проектов</Typography>
+      ) : (
+        ''
+      )}
+      <List
+        sx={{
+          width: '100%',
+          maxWidth: '600px',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '8px',
+          boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+          padding: '16px',
+          margin: '0 auto',
+          overflowY: 'auto',
+          maxHeight: '400px',
+        }}
+      >
         {projects.map((project) => {
           return (
-            <li key={project.id} draggable={true}>
-              <Link to={`/projects/${project.title}`}> {project.title}</Link>
-              <button
-                onClick={() => {
-                  dispatch(deleteTodoProject({ id: project.id }));
-                }}
-              >
-                🗑
-              </button>
-            </li>
+            <ListItem
+              disableGutters
+              key={project.id}
+              secondaryAction={
+                <IconButton
+                  sx={{ margin: 0 }}
+                  edge='end'
+                  aria-label='delete'
+                  onClick={() =>
+                    dispatch(deleteTodoProject({ id: project.id }))
+                  }
+                >
+                  <DeleteIcon />
+                </IconButton>
+              }
+              sx={{
+                backgroundColor: 'white',
+                borderRadius: '4px',
+                margin: '8px 0',
+                padding: '8px 16px',
+                '&:hover': {
+                  backgroundColor: '#e0e0e0', // Подсветка при наведении
+                },
+              }}
+            >
+              <ListItemText
+                primary={
+                  <Link
+                    to={`/projects/${project.title}`}
+                    style={{
+                      textDecoration: 'none',
+                      color: 'inherit',
+                    }}
+                  >
+                    {project.title}
+                  </Link>
+                }
+              />
+            </ListItem>
           );
         })}
-      </ol>
-    </div>
+      </List>
+    </Box>
   );
 };
 

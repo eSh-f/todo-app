@@ -1,30 +1,54 @@
+import { TextField } from '@mui/material';
 import React, { useState } from 'react';
+import { Box } from '@mui/material';
 
-const Search = ({ tasks, onSearch }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+const Search = ({ searchQuery, onSearch, setSearchQuery, resetSearch }) => {
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+
+    if (value === '') {
+      resetSearch();
+    }
+  };
 
   const handleSearch = () => {
-    const results = tasks.filter(
-      (task) =>
-        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        task.id.toString().includes(searchQuery)
-    );
-    onSearch(results);
+    if (!searchQuery.trim()) {
+      resetSearch();
+      return;
+    }
+    onSearch(searchQuery);
   };
 
   return (
-    <div className='search-container'>
-      <input
-        className='search-input'
-        type='text'
-        placeholder='Поиск задач...'
+    <Box>
+      <TextField
+        sx={{
+          backgroundColor: 'white',
+          borderRadius: '5px',
+          '& .MuiInputBase-root': {
+            height: '36px', // Устанавливаем высоту самого поля
+          },
+          '& .MuiInputLabel-root': {
+            transform: 'translate(14px, 7px) scale(1)', // Лейбл ниже
+          },
+          '& .MuiInputLabel-shrink': {
+            transform: 'translate(14px, -4px) scale(0.75)', // Лейбл при фокусе
+          },
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderRadius: '5px', // Радиус границы
+          },
+        }}
+        label='Поиск'
+        variant='outlined'
+        type='search'
+        placeholder='Введите задачу...'
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={handleInputChange}
+        onInput={handleInputChange}
+        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
       />
-      <button className='search-button' onClick={handleSearch}>
-        Найти
-      </button>
-    </div>
+    </Box>
   );
 };
 

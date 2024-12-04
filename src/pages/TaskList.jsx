@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import '../scss/todoList.scss';
+import { Box, Button } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -17,11 +18,8 @@ import {
 import TaskModal from '../components/modals/TaskModal';
 import Task from '../components/Task';
 import DropZone from '../components/DropZone';
-import Search from '../components/Search';
 
-const TaskList = () => {
-  const [filteredTasks, setFilteredTasks] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
+const TaskList = ({ searchQuery, isSearching, filteredTasks, resetSearch }) => {
   const { title } = useParams();
   const [taskTitle, setTaskTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -36,14 +34,11 @@ const TaskList = () => {
   );
 
   const tasks = useSelector((state) =>
-    state.taskList.tasks.filter((task) => task.projectId === project?.id)
+    project
+      ? state.taskList.tasks.filter((task) => task.projectId === project?.id)
+      : []
   );
   console.log('Список задач:', tasks);
-
-  const handleSearch = (results) => {
-    setFilteredTasks(results);
-    setIsSearching(true);
-  };
 
   const taskToDisplay = isSearching ? filteredTasks : tasks;
 
@@ -101,62 +96,73 @@ const TaskList = () => {
   };
 
   return (
-    <div className='wrapper'>
-      <Search tasks={tasks} onSearch={handleSearch} />
+    <>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexDirection: 'column',
+          padding: 2,
+        }}
+      >
+        <Box sx={{ marginBottom: '10px' }}>
+          <Button variant='contained' onClick={openModal}>
+            Добавить задачу
+          </Button>
+        </Box>
 
-      <h1>Проект: {title}</h1>
-
-      <div>
-        Добавить задачу
-        <button onClick={openModal}>+</button>
-      </div>
-
-      <div className='column-container'>
-        {Object.entries(tasksByStatus).map(([status, tasks]) => (
-          <DropZone
-            className={`column-${status.toLowerCase()}`}
-            key={status}
-            status={status}
-            updateTaskStatus={(id, status) =>
-              dispatch(updateTaskStatus({ id, status }))
-            }
-          >
-            {tasks.map((task) => (
-              <Task
-                handleStart={(id) => {
-                  dispatch(startTask({ id: task.id }));
-                }}
-                key={task.id}
-                task={task}
-                editingTask={editingTask}
-                openModal={() => openEditModal(task)}
-                toggleTaskCompletion={(id) =>
-                  dispatch(toggleTaskCompletion(id))
-                }
-                deleteTask={(id) => dispatch(deleteTask(id))}
-                updateTaskTitle={(id, newTitle) =>
-                  dispatch(updateTaskTitle({ id, title: newTitle }))
-                }
-              />
+        <Box>
+          <Grid container spacing={1}>
+            {Object.entries(tasksByStatus).map(([status, tasks]) => (
+              <Grid key={status}>
+                <Box>
+                  <DropZone
+                    status={status}
+                    updateTaskStatus={(id, status) =>
+                      dispatch(updateTaskStatus({ id, status }))
+                    }
+                  >
+                    {tasks.map((task) => (
+                      <Task
+                        handleStart={(id) => {
+                          dispatch(startTask({ id: task.id }));
+                        }}
+                        key={task.id}
+                        task={task}
+                        editingTask={editingTask}
+                        openModal={() => openEditModal(task)}
+                        toggleTaskCompletion={(id) =>
+                          dispatch(toggleTaskCompletion(id))
+                        }
+                        deleteTask={(id) => dispatch(deleteTask(id))}
+                        updateTaskTitle={(id, newTitle) =>
+                          dispatch(updateTaskTitle({ id, title: newTitle }))
+                        }
+                      />
+                    ))}
+                  </DropZone>
+                </Box>
+              </Grid>
             ))}
-          </DropZone>
-        ))}
-        <TaskModal
-          deadLineDate={deadLineDate}
-          setDeadLineDate={setDeadLineDate}
-          editingTask={editingTask}
-          isModalOpen={isModalOpen}
-          closeModal={closeModal}
-          taskTitle={taskTitle}
-          description={description}
-          priority={priority}
-          setTaskTitle={setTaskTitle}
-          setDescription={setDescription}
-          setPriority={setPriority}
-          handleAddOrUpdateTask={handleAddOrUpdateTask}
-        />
-      </div>
-    </div>
+          </Grid>
+          <TaskModal
+            deadLineDate={deadLineDate}
+            setDeadLineDate={setDeadLineDate}
+            editingTask={editingTask}
+            isModalOpen={isModalOpen}
+            closeModal={closeModal}
+            taskTitle={taskTitle}
+            description={description}
+            priority={priority}
+            setTaskTitle={setTaskTitle}
+            setDescription={setDescription}
+            setPriority={setPriority}
+            handleAddOrUpdateTask={handleAddOrUpdateTask}
+          />
+        </Box>
+      </Box>
+    </>
   );
 };
 

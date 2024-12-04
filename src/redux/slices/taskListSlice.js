@@ -25,7 +25,7 @@ const taskList = createSlice({
         status: action.payload.status,
         id: Date.now(),
         title: action.payload.title,
-        description: action.payload.description,
+        description: action.payload.description || null,
         completed: false,
         priority: action.payload.priority,
         projectId: action.payload.projectId,

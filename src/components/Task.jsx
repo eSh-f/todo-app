@@ -1,15 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import { List } from '@mui/material';
 import { useDispatch } from 'react-redux';
+import {
+  ListItem,
+  Box,
+  Button,
+  Checkbox,
+  Typography,
+  Card,
+  CardContent,
+  CardActions,
+  ButtonGroup,
+} from '@mui/material';
+import { useDrag } from 'react-dnd';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DoneIcon from '@mui/icons-material/Done';
+import TimerIcon from '@mui/icons-material/Timer';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import CreateIcon from '@mui/icons-material/Create';
+import CommentIcon from '@mui/icons-material/Comment';
+import dayjs from 'dayjs';
 import {
   addSubtask,
   deleteSubTask,
   toggleSubtaskCompletion,
   addComment,
 } from '../redux/slices/taskListSlice';
-import { useDrag } from 'react-dnd';
-import 'react-quill/dist/quill.snow.css';
-import '../scss/todostylenew.scss';
-import dayjs from 'dayjs';
 
 const Task = ({
   task,
@@ -19,15 +35,11 @@ const Task = ({
   handleStart,
 }) => {
   const dispatch = useDispatch();
-
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplayingTo] = useState(null);
-
   const [showSubtask, setShowSubtask] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
-
   const [showComment, setShowComment] = useState(false);
-
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'TASK',
     item: { id: task.id, status: task.status },
@@ -45,35 +57,32 @@ const Task = ({
     setReplayingTo(null);
   };
 
-  const renderComments = (comments = []) => {
-    return comments.map((comment) => (
-      <div key={comment.id} className='comment-box'>
-        <p className='comment-content'>
-          {comment.content}
-          <button
-            className='reply-button'
-            onClick={() => setReplayingTo(comment.id)}
-          >
-            Ответить
-          </button>
-        </p>
+  const renderComments = (comments = []) =>
+    comments.map((comment) => (
+      <Box
+        key={comment.id}
+        sx={{
+          padding: 1,
+          border: '1px solid #ccc',
+          borderRadius: 1,
+          marginY: 1,
+        }}
+      >
+        <Typography>{comment.content}</Typography>
+        <Button onClick={() => setReplayingTo(comment.id)}>Ответить</Button>
         {replyingTo === comment.id && (
-          <div className='reply-box'>
+          <Box>
             <input
               type='text'
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder='Введите ваш ответ'
             />
-            <button onClick={handleAddComment}>Добавить ответ</button>
-          </div>
+            <Button onClick={handleAddComment}>Добавить ответ</Button>
+          </Box>
         )}
-        {comment.replies?.length > 0 && (
-          <div className='replies'>{renderComments(comment.replies)}</div>
-        )}
-      </div>
+      </Box>
     ));
-  };
 
   const handleAddSubtask = () => {
     if (newSubtaskTitle.trim() === '') return;
@@ -90,7 +99,6 @@ const Task = ({
   };
 
   const [elapsedTime, setElapsedTime] = useState(task.workingTime);
-
   const selectPriority = { low: '🟢', medium: '🟠', high: '🔴' };
 
   useEffect(() => {
@@ -103,7 +111,6 @@ const Task = ({
     } else {
       setElapsedTime(task.workingTime);
     }
-
     return () => clearInterval(timer);
   }, [task.isActive, task.startTime, task.workingTime]);
 
@@ -114,80 +121,164 @@ const Task = ({
     return `${hours}h ${minutes}m ${sec}s`;
   };
 
-  const style = {
-    opacity: isDragging ? 0.5 : 1,
-    textDecoration:
-      task.completed && task.status === 'Done' ? 'line-through' : 'none',
-    padding: '5px',
-    border: '1px solid rgb(91, 90, 165)',
-    borderRadius: '10px',
-    margin: '4px',
-    backgroundColor: 'white',
-    cursor: 'move',
-  };
-
   return (
-    <li ref={drag} style={style}>
-      <span onDoubleClick={() => openModal(task)}> {task.title}</span>
-      {selectPriority[task.priority]}
-      <button onClick={() => toggleTaskCompletion(task.id)}>✅</button>
-      <button onClick={() => openModal(task)}>✏️</button>
-      <button onClick={() => deleteTask(task.id)}>❌</button>
-      <button onClick={() => handleStart(task.id)}>
-        {task.isActive ? formatTime(elapsedTime) : '⏱️'}
-      </button>
-      <button onClick={() => setShowSubtask(!showSubtask)}> 📋 </button>
-      <button onClick={() => setShowComment(!showComment)}> 📝</button>
+    <Card
+      ref={drag}
+      sx={{
+        marginBotton: 2,
+        width: '100%',
+        margin: '2px',
+        maxWidth: 350,
+        margin: '8px auto',
+        boxShadow: '0px 2px 5px rgba(0,0,0,0.1)',
+      }}
+    >
+      <CardContent sx={{ paddingBottom: '8px' }}>
+        <Typography variant='body2' color='textSecondary'>
+          {selectPriority[task.priority]}
+        </Typography>
 
-      {showSubtask && (
-        <div className='subtasks-section'>
-          <ul>
-            {task.subTasks.map((subtask) => (
-              <li key={subtask.id} className='subtask-item'>
-                <input
-                  type='checkbox'
-                  checked={subtask.completed}
-                  onChange={() => handleToggleSubtaskComplition(subtask.id)}
-                />
-                <span className={subtask.completed ? 'completed-subtask' : ''}>
-                  {subtask.title}
-                </span>
-                <button
-                  className='delete-subtask'
-                  onClick={() => handleDeleteSubtask(subtask.id)}
+        <Typography
+          onDoubleClick={() => openModal(task)}
+          sx={{ textDecoration: task.completed ? 'line-through' : 'none' }}
+          variant='h6'
+        >
+          {task.title}
+        </Typography>
+
+        {task.description ? (
+          <Typography variant='body2'>
+            Описание: {task.description.replace(/<[^>]+>/g, '')}
+          </Typography>
+        ) : (
+          ''
+        )}
+
+        {task.deadLineDate ? (
+          <Typography variant='body2' sx={{ marginTop: 1, color: 'gray' }}>
+            Крайний срок: {task.deadLineDate}
+          </Typography>
+        ) : (
+          ''
+        )}
+
+        <Typography variant='body2' sx={{ marginTop: 1, color: 'gray' }}>
+          Дата создания: {task.createdAt}
+        </Typography>
+      </CardContent>
+      <CardActions
+        sx={{
+          justifyContent: 'space-between',
+          padding: '8px 16px',
+          flexWrap: 'wrap',
+          gap: 1,
+        }}
+      >
+        <ButtonGroup size='small'>
+          <Button onClick={() => toggleTaskCompletion(task.id)}>
+            <DoneIcon />
+          </Button>
+          <Button onClick={() => openModal(task)}>
+            <CreateIcon />
+          </Button>
+          <Button onClick={() => deleteTask(task.id)}>
+            <DeleteIcon />
+          </Button>
+          <Button onClick={() => handleStart(task.id)}>
+            {task.isActive ? formatTime(elapsedTime) : <TimerIcon />}
+          </Button>
+        </ButtonGroup>
+        <ButtonGroup size='small'>
+          <Button onClick={() => setShowSubtask(!showSubtask)}>
+            <FormatListBulletedIcon />
+          </Button>
+          <Button onClick={() => setShowComment(!showComment)}>
+            <CommentIcon />
+          </Button>
+        </ButtonGroup>
+
+        {showSubtask && (
+          <Box
+            sx={{
+              padding: '8px',
+              borderTop: '1px solid #ddd',
+            }}
+          >
+            <Typography variant='subtitle2'>Подзадачи:</Typography>
+            <List>
+              {task.subTasks.map((subtask) => (
+                <ListItem
+                  key={subtask.id}
+                  sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                 >
-                  X
-                </button>
-              </li>
-            ))}
-          </ul>
-          <div className='add-subtask'>
-            <input
-              type='text'
-              placeholder='Добавить подзадачу'
-              value={newSubtaskTitle}
-              onChange={(e) => setNewSubtaskTitle(e.target.value)}
-            />
-            <button onClick={handleAddSubtask}>Добавить</button>
-          </div>
-        </div>
-      )}
+                  <Checkbox
+                    checked={subtask.completed}
+                    onChange={() => handleToggleSubtaskComplition(subtask.id)}
+                  />
+                  <Typography>{subtask.title}</Typography>
+                  <Button
+                    size='small'
+                    color='error'
+                    onClick={() => handleDeleteSubtask(subtask.id)}
+                  >
+                    Удалить
+                  </Button>
+                </ListItem>
+              ))}
+            </List>
+            <Box sx={{ display: 'flex', gap: 1, marginTop: 1 }}>
+              <input
+                type='text'
+                placeholder='Добавить подзадачу'
+                value={newSubtaskTitle}
+                onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '6px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                }}
+              />
+              <Button
+                onClick={handleAddSubtask}
+                size='small'
+                variant='contained'
+              >
+                Добавить
+              </Button>
+            </Box>
+          </Box>
+        )}
 
-      {showComment && (
-        <div className='comment-section'>
-          <input
-            type='text'
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder='Введите комментарий'
-          />
-          <button className='add-comment' onClick={handleAddComment}>
-            Добавить комментарий
-          </button>
-          <div>{task.comments && renderComments(task.comments)}</div>
-        </div>
-      )}
-    </li>
+        {showComment && (
+          <Box x={{ padding: '6px', borderTop: '1px solid #ddd' }}>
+            <Typography variant='subtitle2'> Комментарий:</Typography>
+            <Box sx={{ display: 'flex', gap: 1, marginBottom: 2 }}>
+              <input
+                type='text'
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder='Введите комментарий'
+                style={{
+                  flex: 1,
+                  padding: '6px',
+                  border: '1px solic #ccc',
+                  borderRadius: '4px',
+                }}
+              />
+              <Button
+                onClick={handleAddComment}
+                size='small'
+                variant='countainer'
+              >
+                Добавить комментарий
+              </Button>
+            </Box>
+            <Box>{task.comments && renderComments(task.comments)}</Box>
+          </Box>
+        )}
+      </CardActions>
+    </Card>
   );
 };
 
